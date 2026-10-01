@@ -1,0 +1,96 @@
+@page
+@model CNSS_TRESO.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "Utilisateurs";
+}
+
+<section class="hero">
+    <h1>Gestion des utilisateurs</h1>
+    <p>Premier use case cable via la couche Application.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="feature-card mt-3">
+        <h3>Creer un utilisateur</h3>
+        <form method="post" asp-page-handler="Create" class="row g-3 mt-1">
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.Username">Identifiant</label>
+                <input class="form-control" asp-for="Input.Username" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.FullName">Nom complet</label>
+                <input class="form-control" asp-for="Input.FullName" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.CostCenter">Centre de frais</label>
+                <select class="form-select" asp-for="Input.CostCenter">
+                    <option value="">-- Choisir un centre de frais --</option>
+                    @foreach (var costCenter in Model.CostCenters)
+                    {
+                        <option value="@costCenter.Code">@costCenter.Code - @costCenter.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.Password">Mot de passe</label>
+                <input class="form-control" asp-for="Input.Password" type="password" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.AccessLevel">Niveau d acces</label>
+                <select class="form-select" asp-for="Input.AccessLevel">
+                    <option value="1">Agent</option>
+                    <option value="0">Administrateur</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-success">Ajouter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="feature-card mt-3">
+        <h3>Liste</h3>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Identifiant</th>
+                        <th>Matricule</th>
+                        <th>Niveau</th>
+                        <th>Centre</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    <tr>
+                        <td>@user.Username</td>
+                        <td>@user.Matricule</td>
+                        <td>@user.AccessLevel @(user.IsActive ? string.Empty : "(désactivé)")</td>
+                        <td>@user.CostCenter</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="./Edit" asp-route-username="@user.Username">Modifier</a>
+                            <a class="btn btn-sm btn-outline-success" asp-page="./Journals" asp-route-username="@user.Username">Journaux</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-page="./Permissions" asp-route-username="@user.Username">Permissions</a>
+                            <form method="post" asp-page-handler="SetActive" class="d-inline">
+                                <input type="hidden" name="username" value="@user.Username" />
+                                <input type="hidden" name="active" value="@(!user.IsActive)" />
+                                <button class="btn btn-sm @(user.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">@(user.IsActive ? "Désactiver" : "Réactiver")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

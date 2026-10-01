@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CNSS_TRESO.Application\CNSS_TRESO.Application.csproj" />
+    <ProjectReference Include="..\CNSS_TRESO.Infrastructure\CNSS_TRESO.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>CNSS_TRESO-9e6c21f4-c0d4-4e0e-a596-817824928d75</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

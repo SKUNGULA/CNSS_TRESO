@@ -1,0 +1,49 @@
+@page "{number:int}"
+@model CNSS_TRESO.Pages.Treasury.Movements.DeleteModel
+@{
+    ViewData["Title"] = $"Supprimer mouvement #{Model.Number}";
+}
+
+<section class="hero">
+    <h1>Supprimer mouvement #@Model.Number</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.Movement is not null)
+    {
+        <div class="feature-card">
+            <dl class="row">
+                <dt class="col-sm-3">Journal</dt><dd class="col-sm-9">@Model.Movement.Journal</dd>
+                <dt class="col-sm-3">Date</dt><dd class="col-sm-9">@Model.Movement.MovementDate?.ToString("yyyy-MM-dd")</dd>
+                <dt class="col-sm-3">Document</dt><dd class="col-sm-9">@Model.Movement.DocumentCode / @Model.Movement.DocumentNumber</dd>
+                <dt class="col-sm-3">Montant</dt><dd class="col-sm-9">@Model.Movement.Amount?.ToString("N2") @Model.Movement.CurrencyCode</dd>
+                <dt class="col-sm-3">Sens</dt><dd class="col-sm-9">@Model.Movement.Direction</dd>
+                <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@Model.Movement.Description</dd>
+            </dl>
+
+            @if (Model.Movement.IsDraft)
+            {
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Motif (4 caracteres minimum)</label>
+                        <textarea class="form-control" asp-for="Reason" rows="3" required minlength="4"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger" type="submit"
+                                onclick="return confirm('Confirmer la suppression du mouvement ?');">
+                            Supprimer
+                        </button>
+                        <a class="btn btn-outline-secondary" asp-page="Index">Annuler</a>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <a class="btn btn-outline-secondary" asp-page="Index">Retour</a>
+            }
+        </div>
+    }
+</section>

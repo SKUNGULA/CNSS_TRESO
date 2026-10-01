@@ -1,0 +1,39 @@
+@page
+@model CNSS_TRESO.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = "_LoginLayout";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post" autocomplete="off">
+    <div class="mb-3">
+        <label class="form-label" asp-for="Input.Username">Nom utilisateur</label>
+        <input class="form-control" asp-for="Input.Username" autocomplete="username" autofocus />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" asp-for="Input.Password">Mot de passe</label>
+        <input class="form-control" asp-for="Input.Password" type="password" autocomplete="current-password" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" asp-for="Input.Exercise">Exercice</label>
+        <select class="form-select" asp-for="Input.Exercise" required>
+            @if (Model.Exercises.Count == 0)
+            {
+                <option value="">-- aucun exercice détecté --</option>
+            }
+            @foreach (var ex in Model.Exercises)
+            {
+                <option value="@ex.DatabaseName">@ex.Year &nbsp;—&nbsp; @ex.DatabaseName</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Se connecter</button>
+</form>

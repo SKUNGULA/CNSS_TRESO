@@ -1,0 +1,53 @@
+@page
+@model CNSS_TRESO.Pages.Treasury.Journals.IndexModel
+@{
+    ViewData["Title"] = "Journaux";
+}
+
+<section class="hero">
+    <h1>Administration des journaux</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="feature-card mt-3">
+        <h3>Créer un journal</h3>
+        <form method="post" asp-page-handler="CreateJournal" class="row g-3">
+            <div class="col-md-3"><label class="form-label" asp-for="NewJournal.Number">Numéro</label><input class="form-control" asp-for="NewJournal.Number" maxlength="10" /><span class="text-danger small" asp-validation-for="NewJournal.Number"></span></div>
+            <div class="col-md-5"><label class="form-label" asp-for="NewJournal.Label">Libellé</label><input class="form-control" asp-for="NewJournal.Label" maxlength="100" /></div>
+            <div class="col-md-2"><label class="form-label" asp-for="NewJournal.Type">Type</label><select class="form-select" asp-for="NewJournal.Type"><option value="C">Caisse</option><option value="B">Banque</option></select></div>
+            <div class="col-md-2"><label class="form-label" asp-for="NewJournal.Currency">Monnaie</label><select class="form-select" asp-for="NewJournal.Currency"><option value="">--</option>@foreach (var currency in Model.Currencies) { <option value="@currency.Code">@currency.Code</option> }</select></div>
+            <div class="col-md-4"><label class="form-label" asp-for="NewJournal.CostCenter">Centre de frais</label><select class="form-select" asp-for="NewJournal.CostCenter"><option value="">-- Choisir --</option>@foreach (var costCenter in Model.CostCenters) { <option value="@costCenter.Code">@costCenter.Code - @costCenter.Label</option> }</select></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewJournal.Account">Compte</label><input class="form-control" asp-for="NewJournal.Account" maxlength="14" /><span class="text-danger small" asp-validation-for="NewJournal.Account"></span></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewJournal.NextPiece">Prochaine pièce</label><input class="form-control" asp-for="NewJournal.NextPiece" type="number" min="1" /></div>
+            <div class="col-md-2"><label class="form-label" asp-for="NewJournal.MovementType">Type mouvement</label><input class="form-control" asp-for="NewJournal.MovementType" maxlength="1" /></div>
+            <div class="col-12"><button class="btn btn-success" type="submit">Créer le journal</button></div>
+        </form>
+    </div>
+
+    <div class="feature-card mt-3">
+        <h3>Créer un document de journal</h3>
+        <form method="post" asp-page-handler="CreateDocument" class="row g-3">
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.Journal">Journal</label><select class="form-select" asp-for="NewDocument.Journal"><option value="">-- Choisir --</option>@foreach (var journal in Model.Journals) { <option value="@journal.Number">@journal.Number - @journal.Label</option> }</select><span class="text-danger small" asp-validation-for="NewDocument.Journal"></span></div>
+            <div class="col-md-2"><label class="form-label" asp-for="NewDocument.Code">Code</label><input class="form-control" asp-for="NewDocument.Code" maxlength="8" /><span class="text-danger small" asp-validation-for="NewDocument.Code"></span></div>
+            <div class="col-md-4"><label class="form-label" asp-for="NewDocument.Label">Libellé</label><input class="form-control" asp-for="NewDocument.Label" /></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.Number">Numéro document</label><input class="form-control" asp-for="NewDocument.Number" type="number" min="1" /></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.Direction">Sens</label><select class="form-select" asp-for="NewDocument.Direction"><option value="D">Dépense</option><option value="R">Recette</option></select></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.MovementType">Type mouvement</label><input class="form-control" asp-for="NewDocument.MovementType" maxlength="3" /><span class="text-danger small" asp-validation-for="NewDocument.MovementType"></span></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.JournalType">Type journal</label><select class="form-select" asp-for="NewDocument.JournalType"><option value="">--</option><option value="C">Caisse</option><option value="B">Banque</option></select></div>
+            <div class="col-md-3"><label class="form-label" asp-for="NewDocument.CurrencyCode">Monnaie</label><select class="form-select" asp-for="NewDocument.CurrencyCode"><option value="">--</option>@foreach (var currency in Model.Currencies) { <option value="@currency.Code">@currency.Code</option> }</select></div>
+            <div class="col-12"><button class="btn btn-success" type="submit">Créer le document</button></div>
+        </form>
+    </div>
+
+    <div class="feature-card mt-3">
+        <h3>Journaux existants</h3>
+        <div class="table-responsive"><table class="table table-striped table-sm"><thead><tr><th>Numéro</th><th>Libellé</th><th>Type</th><th>Centre</th><th>Compte financier</th><th>Monnaie</th></tr></thead><tbody>@foreach (var journal in Model.Journals) { <tr><td>@journal.Number</td><td>@journal.Label</td><td>@journal.Type</td><td>@journal.CostCenter</td><td>@journal.Account</td><td>@journal.Currency</td></tr> }</tbody></table></div>
+    </div>
+</section>

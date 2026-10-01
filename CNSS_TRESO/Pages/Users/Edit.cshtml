@@ -1,0 +1,49 @@
+@page
+@model CNSS_TRESO.Pages.Users.EditModel
+@{
+    ViewData["Title"] = "Modifier utilisateur";
+}
+
+<section class="hero">
+    <h1>Modifier utilisateur</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <div class="feature-card mt-3">
+        <form method="post" class="row g-3">
+            <input type="hidden" asp-for="Username" />
+            <div class="col-md-4">
+                <label class="form-label">Identifiant</label>
+                <input class="form-control" value="@Model.Username" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.Matricule">Matricule</label>
+                <input class="form-control" asp-for="Input.Matricule" maxlength="10" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.CostCenter">Centre de frais</label>
+                <select class="form-select" asp-for="Input.CostCenter">
+                    <option value="">-- Choisir un centre de frais --</option>
+                    @foreach (var costCenter in Model.CostCenters)
+                    {
+                        <option value="@costCenter.Code">@costCenter.Code - @costCenter.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.AccessLevel">Niveau d'acces</label>
+                <select class="form-select" asp-for="Input.AccessLevel">
+                    <option value="1">Agent</option>
+                    <option value="0">Administrateur</option>
+                </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a class="btn btn-outline-secondary" asp-page="./Index">Annuler</a>
+            </div>
+        </form>
+    </div>
+</section>

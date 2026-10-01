@@ -1,0 +1,87 @@
+@page
+@model CNSS_TRESO.Pages.Treasury.ExchangeRates.IndexModel
+@{
+    ViewData["Title"] = "Taux de change";
+}
+
+<section class="hero">
+    <h1>Taux de change</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="feature-card mt-3">
+        <h3>Nouveau taux</h3>
+        <form method="post" asp-page-handler="Create" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <input class="form-control" asp-for="Input.RateDate" type="date" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Monnaie</label>
+                <select class="form-select" asp-for="Input.CurrencyCode" asp-items="Model.CurrencyOptions"></select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Montant taux</label>
+                <input class="form-control" asp-for="Input.Amount" type="number" step="0.0001" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Pourcent</label>
+                <input class="form-control" asp-for="Input.Percent" type="number" step="0.01" />
+            </div>
+            <div class="col-12">
+                <button class="btn btn-success" type="submit">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="feature-card mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Liste des taux (200 plus récents)</h3>
+            <form method="get" class="d-flex gap-2">
+                <select class="form-select form-select-sm" name="FilterCurrency" asp-items="Model.CurrencyOptions">
+                    <option value="">— Toutes les monnaies —</option>
+                </select>
+                <button class="btn btn-outline-primary btn-sm" type="submit">Filtrer</button>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Date</th>
+                        <th>Monnaie</th>
+                        <th class="text-end">Montant</th>
+                        <th class="text-end">Pourcent</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Rates)
+                {
+                    <tr>
+                        <td>@r.Number</td>
+                        <td>@r.RateDate.ToString("yyyy-MM-dd")</td>
+                        <td>@r.CurrencyCode</td>
+                        <td class="text-end">@(r.Amount?.ToString("N4") ?? "-")</td>
+                        <td class="text-end">@(r.Percent?.ToString("N2") ?? "-")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-number="@r.Number">Modifier</a>
+                            <form method="post" asp-page-handler="Delete" asp-route-number="@r.Number" class="d-inline">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

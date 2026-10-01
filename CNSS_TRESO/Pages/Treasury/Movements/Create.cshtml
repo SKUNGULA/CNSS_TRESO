@@ -1,0 +1,354 @@
+@page
+@model CNSS_TRESO.Pages.Treasury.Movements.CreateModel
+@{
+    ViewData["Title"] = "Saisie mouvement";
+}
+
+@{
+    var nature = (Model.Nature ?? "C").Trim().ToUpperInvariant();
+    if (nature != "C" && nature != "B") { nature = "C"; }
+    var natureLabel = nature == "B" ? "Banque" : "Caisse";
+}
+<section class="hero">
+    <h1>Saisie mouvement @natureLabel</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="feature-card mt-3 movement-entry-card">
+        <form method="post" class="row g-2 movement-entry-form">
+            <input type="hidden" name="nature" value="@nature" />
+            <div class="col-md-3">
+                <label class="form-label">Nature</label>
+                <select class="form-select" id="natureSelect">
+                    @if (nature == "B")
+                    {
+                        <option value="C">Caisse</option>
+                        <option value="B" selected>Banque</option>
+                    }
+                    else
+                    {
+                        <option value="C" selected>Caisse</option>
+                        <option value="B">Banque</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Journal</label>
+                <select class="form-select" asp-for="Input.Journal" id="journalSelect" required>
+                    <option value="">-- choisir --</option>
+                    @foreach (var j in Model.Journals)
+                    {
+                        <option value="@j.Number" data-currency="@j.Currency" data-type="@j.MovementType" data-next="@j.NextPiece" data-jtype="@(j.JournalType ?? string.Empty)">@j.Number — @j.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date mouvement</label>
+                <input class="form-control" asp-for="Input.MovementDate" type="date" id="movementDate" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Document</label>
+                <select class="form-select" asp-for="Input.DocumentCode" id="documentSelect" required>
+                    <option value="">-- choisir un journal d'abord --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">N° document</label>
+                <input class="form-control" asp-for="Input.DocumentNumber" type="number" id="documentNumber" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Sens</label>
+                <select class="form-select" asp-for="Input.Direction" id="directionSelect">
+                    <option value="D">Dépense</option>
+                    <option value="R">Recette</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Type</label>
+                <select class="form-select" asp-for="Input.MovementType" id="typeSelect">
+                    <option value="Esp">Espèces</option>
+                    <option value="Chq">Chèque</option>
+                    <option value="Vir">Virement</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Montant</label>
+                <input class="form-control" asp-for="Input.Amount" type="number" step="0.01" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Taux</label>
+                <input class="form-control" asp-for="Input.Rate" type="number" step="0.0001" min="0.0001" id="rateInput" required />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Devise</label>
+                <select class="form-select" asp-for="Input.CurrencyCode" id="currencySelect">
+                    @foreach (var c in Model.Currencies)
+                    {
+                        <option value="@c.Code">@c.Code — @c.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tiers</label>
+                <select class="form-select" asp-for="Input.AccountType" id="tiersSelect" required>
+                    <option value="">-- choisir --</option>
+                    @foreach (var t in Model.TiersList)
+                    {
+                        <option value="@t.Code">@t.Code — @t.Designation</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Compte d'imputation</label>
+                <select class="form-select" asp-for="Input.Account" id="accountSelect" data-initial="@Model.Input.Account" required>
+                    <option value="">-- choisir un tiers d'abord --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">N° pièce</label>
+                <input class="form-control" asp-for="Input.PieceNumber" type="number" id="pieceNumber" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Payeur</label>
+                <input class="form-control" asp-for="Input.Payer" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Bénéficiaire</label>
+                <input class="form-control" asp-for="Input.Beneficiary" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">N° chèque</label>
+                <input class="form-control" asp-for="Input.CheckNumber" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Banque</label>
+                <input class="form-control" asp-for="Input.Bank" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Description / Libellé</label>
+                <textarea class="form-control" asp-for="Input.Description" rows="2"></textarea>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-success" type="submit">Enregistrer</button>
+                <a class="btn btn-outline-secondary" asp-page="Index">Retour</a>
+            </div>
+        </form>
+    </div>
+
+    <section class="feature-card mt-3 movement-day-grid" aria-labelledby="movementDayGridTitle">
+        <div class="movement-day-grid__header">
+            <div>
+                <h2 id="movementDayGridTitle">Ecritures de la journee</h2>
+                <p id="dailyMovementsSummary">Selectionnez un journal pour afficher les ecritures de la date choisie.</p>
+            </div>
+            <span id="dailyMovementsCount" class="badge text-bg-secondary">0</span>
+        </div>
+        <div class="table-responsive movement-day-grid__table">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Pièce</th>
+                        <th>Document</th>
+                        <th class="text-end">N° doc.</th>
+                        <th>Libellé</th>
+                        <th>Sens</th>
+                        <th class="text-end">Montant</th>
+                        <th>Devise</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="dailyMovementsBody">
+                    <tr><td colspan="9" class="text-center text-muted py-3">Aucune écriture à afficher.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+<script>
+(function(){
+    const tiers = document.getElementById('tiersSelect');
+    const acc = document.getElementById('accountSelect');
+    const journal = document.getElementById('journalSelect');
+    const currency = document.getElementById('currencySelect');
+    const dateEl = document.getElementById('movementDate');
+    const rateEl = document.getElementById('rateInput');
+    const natureSel = document.getElementById('natureSelect');
+    const dailyBody = document.getElementById('dailyMovementsBody');
+    const dailySummary = document.getElementById('dailyMovementsSummary');
+    const dailyCount = document.getElementById('dailyMovementsCount');
+
+    function escapeHtml(value){
+        return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[char]);
+    }
+
+    function renderDailyMessage(message){
+        if (dailyBody) dailyBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">' + escapeHtml(message) + '</td></tr>';
+    }
+
+    async function loadDailyMovements(){
+        if (!dailyBody || !dailySummary || !dailyCount || !journal || !dateEl) return;
+        if (!journal.value) {
+            dailySummary.textContent = 'Selectionnez un journal pour afficher les ecritures de la date choisie.';
+            dailyCount.textContent = '0';
+            renderDailyMessage('Aucune écriture à afficher.');
+            return;
+        }
+        if (!dateEl.value) return;
+
+        dailySummary.textContent = 'Chargement des ecritures...';
+        renderDailyMessage('Chargement...');
+        try {
+            const response = await fetch('?handler=DailyMovements&journal=' + encodeURIComponent(journal.value) + '&date=' + encodeURIComponent(dateEl.value));
+            if (!response.ok) throw new Error('Chargement impossible');
+            const movements = await response.json();
+            dailyCount.textContent = movements.length;
+            dailySummary.textContent = movements.length + ' écriture(s) pour le journal ' + journal.value + ' du ' + new Date(dateEl.value + 'T00:00:00').toLocaleDateString('fr-FR') + '.';
+            if (!movements.length) {
+                renderDailyMessage('Aucune écriture pour cette sélection.');
+                return;
+            }
+            dailyBody.innerHTML = movements.map(m => '<tr>' +
+                '<td>' + escapeHtml(m.number) + '</td>' +
+                '<td>' + escapeHtml(m.pieceNumber ?? '-') + '</td>' +
+                '<td>' + escapeHtml(m.documentCode) + '</td>' +
+                '<td class="text-end">' + escapeHtml(m.documentNumber) + '</td>' +
+                '<td class="movement-day-grid__description">' + escapeHtml(m.description || '-') + '</td>' +
+                '<td>' + escapeHtml(m.direction === 'D' ? 'Dépense' : 'Recette') + '</td>' +
+                '<td class="text-end">' + Number(m.amount || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                '<td>' + escapeHtml(m.currencyCode) + '</td>' +
+                '<td><span class="badge ' + (m.validated ? 'text-bg-success' : 'text-bg-secondary') + '">' + (m.validated ? 'Validé' : 'Brouillon') + '</span></td>' +
+                '</tr>').join('');
+        } catch (error) {
+            dailyCount.textContent = '0';
+            dailySummary.textContent = 'Les écritures ne peuvent pas être chargées pour cette sélection.';
+            renderDailyMessage('Erreur de chargement.');
+        }
+    }
+
+    function filterJournals(){
+        if (!journal || !natureSel) return;
+        const want = (natureSel.value || '').toUpperCase();
+        const current = journal.value;
+        let firstVisible = '';
+        Array.from(journal.options).forEach(o => {
+            if (!o.value) { o.hidden = false; return; }
+            const t = (o.getAttribute('data-jtype') || '').toUpperCase();
+            const match = !want || !t || t === want;
+            o.hidden = !match;
+            o.disabled = !match;
+            if (match && !firstVisible) firstVisible = o.value;
+        });
+        const curOpt = Array.from(journal.options).find(o => o.value === current);
+        if (!curOpt || curOpt.hidden) {
+            journal.value = '';
+            journal.dispatchEvent(new Event('change'));
+        }
+    }
+    if (natureSel) {
+        natureSel.addEventListener('change', () => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('nature', natureSel.value);
+            window.location.href = url.toString();
+        });
+    }
+    filterJournals();
+
+    async function loadAccounts(code, keep){
+        if (!acc) return;
+        acc.innerHTML = '<option value="">Chargement...</option>';
+        if (!code) { acc.innerHTML = '<option value="">-- choisir un tiers d\'abord --</option>'; return; }
+        try {
+            const r = await fetch('?handler=Accounts&tiers=' + encodeURIComponent(code));
+            const list = await r.json();
+            acc.innerHTML = '<option value="">-- choisir --</option>' +
+                list.map(x => '<option value="' + x.code + '"' + (x.code===keep?' selected':'') + '>' + x.code + ' — ' + (x.label||'') + '</option>').join('');
+        } catch(e) { acc.innerHTML = '<option value="">Erreur de chargement</option>'; }
+    }
+    if (tiers && acc) {
+        const initial = acc.getAttribute('data-initial') || '';
+        tiers.addEventListener('change', () => loadAccounts(tiers.value, ''));
+        if (tiers.value) loadAccounts(tiers.value, initial);
+    }
+
+    async function fetchRate(){
+        if (!currency || !dateEl || !rateEl) return;
+        if (!currency.value || !dateEl.value) return;
+        try {
+            const r = await fetch('?handler=Rate&currency=' + encodeURIComponent(currency.value) + '&date=' + encodeURIComponent(dateEl.value));
+            const j = await r.json();
+            if (j && j.rate != null) rateEl.value = j.rate;
+        } catch(e) {}
+    }
+    if (currency) currency.addEventListener('change', fetchRate);
+    if (dateEl) dateEl.addEventListener('change', () => { fetchRate(); loadDailyMovements(); });
+
+    if (journal) {
+        const initialDoc = '@(Model.Input.DocumentCode)';
+        async function loadDocuments(keep){
+            const docSel = document.getElementById('documentSelect');
+            if (!docSel) return;
+            if (!journal.value) { docSel.innerHTML = '<option value="">-- choisir un journal d\'abord --</option>'; return; }
+            docSel.innerHTML = '<option value="">Chargement...</option>';
+            try {
+                const r = await fetch('?handler=Documents&journal=' + encodeURIComponent(journal.value));
+                const list = await r.json();
+                docSel.innerHTML = '<option value="">-- choisir --</option>' +
+                    list.map(d => '<option value="' + d.code + '" data-next="' + (d.nextNumber||'') + '" data-direction="' + (d.direction||'') + '" data-type="' + (d.movementType||'') + '"' + (d.code===keep?' selected':'') + '>' + d.code + ' — ' + (d.label||'') + '</option>').join('');
+            } catch(e) { docSel.innerHTML = '<option value="">Erreur</option>'; }
+        }
+        journal.addEventListener('change', () => {
+            const opt = journal.options[journal.selectedIndex];
+            if (opt) {
+                const cur = opt.getAttribute('data-currency');
+                if (cur && currency) {
+                    const found = Array.from(currency.options).find(o => o.value === cur);
+                    if (found) { currency.value = cur; fetchRate(); }
+                }
+                const next = opt.getAttribute('data-next');
+                const piece = document.getElementById('pieceNumber');
+                if (piece && next) piece.value = next;
+            }
+            loadDocuments('');
+            loadDailyMovements();
+        });
+        if (journal.value) {
+            loadDocuments(initialDoc);
+            loadDailyMovements();
+        }
+
+        const docSel = document.getElementById('documentSelect');
+        if (docSel) {
+            docSel.addEventListener('change', () => {
+                const o = docSel.options[docSel.selectedIndex];
+                if (!o) return;
+                const nn = o.getAttribute('data-next');
+                const docNum = document.getElementById('documentNumber');
+                if (docNum && nn) docNum.value = (parseInt(nn,10)||0) + 1;
+                const dir = o.getAttribute('data-direction');
+                const dirSel = document.getElementById('directionSelect');
+                if (dir && dirSel && Array.from(dirSel.options).some(x => x.value===dir)) dirSel.value = dir;
+                const tp = o.getAttribute('data-type');
+                const tpSel = document.getElementById('typeSelect');
+                if (tp && tpSel && Array.from(tpSel.options).some(x => x.value===tp)) tpSel.value = tp;
+            });
+        }
+    }
+})();
+</script>
+}

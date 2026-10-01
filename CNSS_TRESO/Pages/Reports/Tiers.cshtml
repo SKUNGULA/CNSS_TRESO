@@ -1,0 +1,119 @@
+@page
+@model CNSS_TRESO.Pages.Reports.TiersModel
+@{
+    ViewData["Title"] = "Journal des tiers";
+}
+
+<section class="hero">
+    <h1>Journal des tiers</h1>
+    <p class="text-muted">Récapitulatif des mouvements groupés par bénéficiaire / payeur.</p>
+
+    <form method="get" class="feature-card mb-3">
+        <input type="hidden" name="Submitted" value="true" />
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">Du</label>
+                <input type="date" name="FromDate" value="@Model.FromDate.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Au</label>
+                <input type="date" name="ToDate" value="@Model.ToDate.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Journal (optionnel)</label>
+                <select name="JournalCode" class="form-select" asp-items="Model.JournalOptions">
+                    <option value="">-- Tous --</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">Sens</label>
+                <select name="Direction" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="D" selected="@(Model.Direction == "D")">D</option>
+                    <option value="R" selected="@(Model.Direction == "R")">R</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Centre</label>
+                <input type="text" name="CostCenter" value="@Model.CostCenter" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Tiers (contient)</label>
+                <input type="text" name="TiersFilter" value="@Model.TiersFilter" class="form-control" />
+            </div>
+        </div>
+        <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Aperçu</button>
+            <a class="btn btn-outline-success"
+               asp-page-handler="Excel"
+               asp-route-FromDate="@Model.FromDate.ToString("yyyy-MM-dd")"
+               asp-route-ToDate="@Model.ToDate.ToString("yyyy-MM-dd")"
+               asp-route-JournalCode="@Model.JournalCode"
+               asp-route-Direction="@Model.Direction"
+               asp-route-CostCenter="@Model.CostCenter"
+               asp-route-TiersFilter="@Model.TiersFilter">Excel</a>
+        </div>
+    </form>
+
+    @if (Model.Report is { } r)
+    {
+        <div class="feature-card print-area">
+            <partial name="_ReportLetterhead" model="@(new CNSS_TRESO.Pages.Shared.ReportLetterheadModel { CostCenter = r.CostCenter, CostCenterLabel = r.CostCenterLabel })" />
+            <div class="mb-2 no-print">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Imprimer</button>
+            </div>
+            <h4 class="text-center mb-1">JOURNAL DES TIERS</h4>
+            <p class="text-center text-muted">
+                Du @r.FromDate.ToString("dd/MM/yyyy") au @r.ToDate.ToString("dd/MM/yyyy")
+                — Centre : @(r.CostCenter ?? "(tous)")
+                — Journal : @(r.JournalCode ?? "(tous)")
+                — Sens : @(r.Direction ?? "(R+D)")
+            </p>
+
+            <div class="row mb-2">
+                <div class="col-md-3"><strong>Tiers :</strong> @r.Rows.Count</div>
+                <div class="col-md-3"><strong>Mouvements :</strong> @r.TotalCount</div>
+                <div class="col-md-2"><strong>Recettes :</strong> @r.GrandTotalReceipts.ToString("N2")</div>
+                <div class="col-md-2"><strong>Dépenses :</strong> @r.GrandTotalExpenses.ToString("N2")</div>
+                <div class="col-md-2"><strong>Net :</strong> @r.GrandNet.ToString("N2")</div>
+            </div>
+
+            @foreach (var row in r.Rows)
+            {
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between bg-light p-2 border">
+                        <strong>@row.TiersName</strong>
+                        <span class="small">@row.Count mvt(s) — R: @row.TotalReceipts.ToString("N2") | D: @row.TotalExpenses.ToString("N2") | Net: @row.Net.ToString("N2")</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th><th>Journal</th><th>N° Doc</th><th>N° Pièce</th>
+                                    <th>Compte</th><th>Libellé</th><th>Sens</th><th>Monnaie</th>
+                                    <th class="text-end">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in row.Details)
+                                {
+                                    <tr>
+                                        <td>@d.MovementDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@d.JournalCode</td>
+                                        <td>@d.DocumentNumber</td>
+                                        <td>@d.PieceNumber</td>
+                                        <td>@d.Account</td>
+                                        <td>@d.Description</td>
+                                        <td>@d.Direction</td>
+                                        <td>@d.CurrencyCode</td>
+                                        <td class="text-end">@d.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

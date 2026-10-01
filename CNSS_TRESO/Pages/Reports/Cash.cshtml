@@ -1,0 +1,123 @@
+@page
+@model CNSS_TRESO.Pages.Reports.CashModel
+@{
+    ViewData["Title"] = "Livre de caisse / banque";
+}
+
+<section class="hero">
+    <form method="get" class="feature-card mb-3">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label class="form-label">Journal</label>
+                <select name="JournalCode" class="form-select" asp-items="Model.JournalOptions">
+                    <option value="">-- Choisir un journal --</option>
+                </select>
+                <span class="text-danger small">@Html.ValidationMessageFor(m => m.JournalCode)</span>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Du</label>
+                <input type="date" name="FromDate" value="@Model.FromDate.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Au</label>
+                <input type="date" name="ToDate" value="@Model.ToDate.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Centre</label>
+                <input type="text" name="CostCenter" value="@Model.CostCenter" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button class="btn btn-primary" type="submit">Aperçu</button>
+                <a class="btn btn-outline-success"
+                   asp-page-handler="Excel"
+                   asp-route-JournalCode="@Model.JournalCode"
+                   asp-route-FromDate="@Model.FromDate.ToString("yyyy-MM-dd")"
+                   asp-route-ToDate="@Model.ToDate.ToString("yyyy-MM-dd")"
+                   asp-route-CostCenter="@Model.CostCenter">Excel</a>
+                @if (Model.Report is not null)
+                {
+                    <a class="btn btn-outline-secondary"
+                       asp-page-handler="Pdf"
+                       asp-route-JournalCode="@Model.JournalCode"
+                       asp-route-FromDate="@Model.FromDate.ToString("yyyy-MM-dd")"
+                       asp-route-ToDate="@Model.ToDate.ToString("yyyy-MM-dd")"
+                       asp-route-CostCenter="@Model.CostCenter">Imprimer</a>
+                }
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Report is { } r)
+    {
+        var titre = string.Equals(r.JournalType, "C", StringComparison.OrdinalIgnoreCase) ? "LIVRE DE CAISSE" : "LIVRE DE BANQUE";
+        <div class="feature-card print-area">
+            <partial name="_ReportLetterhead" model="@(new CNSS_TRESO.Pages.Shared.ReportLetterheadModel { CostCenter = r.CostCenter, CostCenterLabel = r.CostCenterLabel })" />
+            <h4 class="text-center mb-1">@titre @r.JournalCode @r.JournalLabel?.ToUpper()</h4>
+            <p class="text-center text-muted">DU @r.FromDate.ToString("dd/MM/yyyy") AU @r.ToDate.ToString("dd/MM/yyyy") — Centre : @(r.CostCenter ?? "(tous)")</p>
+
+            <div class="row mb-2">
+                <div class="col-md-4"><strong>Solde initial :</strong> @r.OpeningBalance.ToString("N2")</div>
+                <div class="col-md-3"><strong>Total recettes :</strong> @r.TotalReceipts.ToString("N2")</div>
+                <div class="col-md-3"><strong>Total dépenses :</strong> @r.TotalExpenses.ToString("N2")</div>
+                <div class="col-md-2"><strong>Solde final :</strong> @r.ClosingBalance.ToString("N2")</div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Date</th><th>N° Doc</th><th>N° Pièce</th>
+                            <th>Compte</th><th>Libellé</th><th>Bénéficiaire</th>
+                            <th class="text-end">Recette</th><th class="text-end">Dépense</th><th class="text-end">Solde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in r.Rows)
+                        {
+                            <tr class="@(row.IsOpening ? "table-warning fst-italic" : "")">
+                                <td>@row.MovementDate.ToString("dd/MM/yyyy")</td>
+                                <td>@row.DocumentNumber</td>
+                                <td>@row.PieceNumber</td>
+                                <td>@row.Account</td>
+                                <td>@row.Description</td>
+                                <td>@row.Beneficiary</td>
+                                <td class="text-end">@row.AmountReceipt.ToString("N2")</td>
+                                <td class="text-end">@row.AmountExpense.ToString("N2")</td>
+                                <td class="text-end">@row.RunningBalance.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="6" class="text-end">TOTAUX</td>
+                            <td class="text-end">@r.TotalReceipts.ToString("N2")</td>
+                            <td class="text-end">@r.TotalExpenses.ToString("N2")</td>
+                            <td class="text-end">@r.ClosingBalance.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <hr />
+            <div class="row mt-4">
+                @{
+                    var s = r.Signatories;
+                    var blocks = new (string? Title, string? Name)[]
+                    {
+                        (s.OfficerTitle, s.OfficerName),
+                        (s.CenterTitle, s.CenterName),
+                        (s.LeftTitle, s.LeftName),
+                        (s.RightTitle, s.RightName),
+                    };
+                }
+                @foreach (var b in blocks)
+                {
+                    <div class="col-md-3 text-center">
+                        <div class="fw-bold">@b.Title</div>
+                        <div class="mt-4 pt-3 border-top">@b.Name</div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</section>

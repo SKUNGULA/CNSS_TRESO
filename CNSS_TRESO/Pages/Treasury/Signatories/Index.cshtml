@@ -1,0 +1,26 @@
+@page
+@model CNSS_TRESO.Pages.Treasury.Signatories.IndexModel
+@{
+    ViewData["Title"] = "Signataires";
+}
+<section class="hero">
+    <h1>Administration des signataires</h1>
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="alert alert-danger">@Model.ErrorMessage</div> }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage)) { <div class="alert alert-success">@Model.SuccessMessage</div> }
+    <div class="feature-card mt-3">
+        <form method="get" class="row g-3 align-items-end"><div class="col-md-6"><label class="form-label" asp-for="JournalCode">Journal</label><select class="form-select" asp-for="JournalCode"><option value="">-- Choisir un journal --</option>@foreach (var journal in Model.Journals) { <option value="@journal.Number">@journal.Number - @journal.Label</option> }</select></div><div class="col-md-2"><button class="btn btn-outline-primary" type="submit">Charger</button></div></form>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.JournalCode))
+    {
+        <div class="feature-card mt-3">
+            <form method="post" class="row g-3">
+                <input type="hidden" asp-for="JournalCode" />
+                <div class="col-md-6"><label class="form-label" asp-for="Input.OfficerName">Préposé</label><input class="form-control" asp-for="Input.OfficerName" /></div><div class="col-md-6"><label class="form-label" asp-for="Input.OfficerTitle">Titre préposé</label><input class="form-control" asp-for="Input.OfficerTitle" /></div>
+                <div class="col-md-6"><label class="form-label" asp-for="Input.CenterName">Signataire centre</label><input class="form-control" asp-for="Input.CenterName" /></div><div class="col-md-6"><label class="form-label" asp-for="Input.CenterTitle">Titre centre</label><input class="form-control" asp-for="Input.CenterTitle" /></div>
+                <div class="col-md-6"><label class="form-label" asp-for="Input.LeftName">Signataire gauche</label><input class="form-control" asp-for="Input.LeftName" /></div><div class="col-md-6"><label class="form-label" asp-for="Input.LeftTitle">Titre gauche</label><input class="form-control" asp-for="Input.LeftTitle" /></div>
+                <div class="col-md-6"><label class="form-label" asp-for="Input.RightName">Signataire droite</label><input class="form-control" asp-for="Input.RightName" /></div><div class="col-md-6"><label class="form-label" asp-for="Input.RightTitle">Titre droite</label><input class="form-control" asp-for="Input.RightTitle" /></div>
+                <div class="col-12"><button class="btn btn-success" type="submit">Enregistrer</button></div>
+            </form>
+        </div>
+    }
+</section>

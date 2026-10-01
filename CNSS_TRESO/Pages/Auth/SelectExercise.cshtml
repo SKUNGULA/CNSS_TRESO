@@ -1,0 +1,31 @@
+@page
+@model CNSS_TRESO.Pages.Auth.SelectExerciseModel
+@{
+    ViewData["Title"] = "Selection exercice";
+    Layout = "_LoginLayout";
+}
+
+<h2 class="h5 mb-3">Bonjour @User.Identity?.Name</h2>
+<p class="text-muted small">Choisissez l'exercice de travail :</p>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label" asp-for="SelectedDatabase">Exercice</label>
+        <select class="form-select" asp-for="SelectedDatabase">
+            @foreach (var ex in Model.Exercises)
+            {
+                <option value="@ex.DatabaseName">@ex.Year &mdash; @ex.DatabaseName</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success w-100">Continuer</button>
+</form>
+
+<form method="get" asp-page-handler="Logout" class="mt-2">
+    <button type="submit" class="btn btn-link w-100">Se deconnecter</button>
+</form>

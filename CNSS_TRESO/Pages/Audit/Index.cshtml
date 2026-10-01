@@ -1,0 +1,78 @@
+@page
+@model CNSS_TRESO.Pages.Audit.IndexModel
+@{
+    ViewData["Title"] = "Journal d'audit";
+}
+
+<section class="hero">
+    <h1>Journal d'audit</h1>
+    <p class="lead">Filtrer par utilisateur, action ou période, puis exporter en Excel.</p>
+
+    <form method="get" class="feature-card mt-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small">Utilisateur</label>
+                <input asp-for="UsernameFilter" class="form-control form-control-sm" placeholder="ex. lobota" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Action</label>
+                <input asp-for="ActionFilter" class="form-control form-control-sm" placeholder="ex. Movement.Create" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Du</label>
+                <input asp-for="FromDate" type="date" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Au</label>
+                <input asp-for="ToDate" type="date" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small">Max</label>
+                <input asp-for="Max" type="number" min="1" max="5000" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+            </div>
+        </div>
+        <div class="mt-2">
+            <a class="btn btn-success btn-sm"
+               asp-page-handler="Export"
+               asp-route-UsernameFilter="@Model.UsernameFilter"
+               asp-route-ActionFilter="@Model.ActionFilter"
+               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+               asp-route-Max="@Model.Max">Exporter Excel</a>
+            <span class="text-muted small ms-2">@Model.Entries.Count entrée(s)</span>
+        </div>
+    </form>
+
+    <div class="feature-card mt-3">
+        <div class="table-responsive">
+            <table class="table table-striped table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Date (UTC)</th>
+                        <th>Utilisateur</th>
+                        <th>Action</th>
+                        <th>Type</th>
+                        <th>Cible</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var e in Model.Entries)
+                {
+                    <tr>
+                        <td>@e.OccurredAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@e.Username</td>
+                        <td>@e.Action</td>
+                        <td>@e.EntityType</td>
+                        <td>@e.EntityId</td>
+                        <td>@e.Details</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

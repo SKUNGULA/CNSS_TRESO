@@ -1,0 +1,64 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Accueil";
+    var ex = User.FindFirst("Exercise")?.Value;
+    var cf = User.FindFirst("CostCenter")?.Value;
+    var isAdmin = User.IsInRole("Administrator");
+}
+
+<section class="hero">
+    <h1>Tableau de bord</h1>
+    <p class="lead">
+        Bienvenue <strong>@User.Identity?.Name</strong>
+        @if (!string.IsNullOrEmpty(ex)) { <span>&middot; Exercice <strong>@ex</strong></span> }
+        @if (!string.IsNullOrEmpty(cf)) { <span>&middot; Centre de frais <strong>@cf</strong></span> }
+    </p>
+
+    <h3 class="mt-4">Trésorerie</h3>
+    <div class="grid-cards">
+        <a class="feature-card text-decoration-none text-dark" asp-page="/Treasury/Movements/Create">
+            <h3>Saisie d'un mouvement</h3>
+            <p>Enregistrer une recette ou dépense (caisse, banque, chèque).</p>
+        </a>
+        <a class="feature-card text-decoration-none text-dark" asp-page="/Treasury/Movements/Index">
+            <h3>Consultation des mouvements</h3>
+            <p>Rechercher, valider ou dévalider les mouvements de l'exercice.</p>
+        </a>
+        <a class="feature-card text-decoration-none text-dark" asp-page="/Treasury/ExchangeRates/Index">
+            <h3>Taux de change</h3>
+            <p>Saisir et consulter les taux quotidiens par monnaie.</p>
+        </a>
+    </div>
+
+    <h3 class="mt-4">Rapports</h3>
+    <div class="grid-cards">
+        <a class="feature-card text-decoration-none text-dark" asp-page="/Reports/Cash">
+            <h3>Livre caisse / banque</h3>
+            <p>Rapport par journal avec totaux et export Excel.</p>
+        </a>
+        <a class="feature-card text-decoration-none text-dark" asp-page="/Reports/Tiers">
+            <h3>Journal des tiers</h3>
+            <p>Récap par bénéficiaire / payeur sur la période choisie.</p>
+        </a>
+    </div>
+
+    @if (isAdmin)
+    {
+        <h3 class="mt-4">Administration</h3>
+        <div class="grid-cards">
+            <a class="feature-card text-decoration-none text-dark" asp-page="/Users/Index">
+                <h3>Utilisateurs</h3>
+                <p>Créer des comptes et gérer les autorisations par module.</p>
+            </a>
+            <a class="feature-card text-decoration-none text-dark" asp-page="/Audit/Index">
+                <h3>Journal d'audit</h3>
+                <p>Suivi des événements (login, saisies, validations, permissions).</p>
+            </a>
+            <a class="feature-card text-decoration-none text-dark" asp-page="/Auth/SelectExercise">
+                <h3>Changer d'exercice</h3>
+                <p>Basculer sur une autre base annuelle.</p>
+            </a>
+        </div>
+    }
+</section>

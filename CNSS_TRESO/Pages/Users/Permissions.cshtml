@@ -1,0 +1,68 @@
+@page "{username}"
+@model CNSS_TRESO.Pages.Users.PermissionsModel
+@{
+    ViewData["Title"] = $"Permissions - {Model.Username}";
+}
+
+<section class="hero">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Permissions de @Model.Username</h1>
+        <a class="btn btn-outline-secondary btn-sm" asp-page="./Index">← Retour</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="feature-card mt-2">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">N°</th>
+                        <th>Module / Formulaire</th>
+                        <th style="width: 120px;" class="text-center">Accès</th>
+                        <th style="width: 160px;" class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var m in Model.Modules)
+                {
+                    <tr>
+                        <td>@m.Number</td>
+                        <td>@m.Name</td>
+                        <td class="text-center">
+                            @if (m.Granted)
+                            {
+                                <span class="badge bg-success">Autorisé</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Refusé</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <form method="post" class="d-inline">
+                                <input type="hidden" name="ModuleNumber" value="@m.Number" />
+                                @if (m.Granted)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" asp-page-handler="Revoke">Retirer</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-success" type="submit" asp-page-handler="Grant">Accorder</button>
+                                }
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

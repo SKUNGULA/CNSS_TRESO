@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CNSS_TRESO</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CNSS_TRESO.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="app-header">
+        <div class="container app-header__inner">
+            <a class="brand" asp-area="" asp-page="/Index">
+                @{ ViewData["LogoCssClass"] = "brand__logo"; }
+                <partial name="_BrandLogo" />
+                <span>CNSS_TRESO</span>
+            </a>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <nav class="app-nav" aria-label="Navigation principale">
+                    <a asp-area="" asp-page="/Index">Accueil</a>
+                    <a asp-area="" asp-page="/Treasury/Movements/Create" asp-route-nature="C">Saisie Caisse</a>
+                    <a asp-area="" asp-page="/Treasury/Movements/Create" asp-route-nature="B">Saisie Banque</a>
+                    <a asp-area="" asp-page="/Treasury/ExchangeRates/Index">Taux</a>
+                    <a asp-area="" asp-page="/Treasury/Movements/Index">Consultation</a>
+                    <a asp-area="" asp-page="/Reports/Cash">Rapport caisse</a>
+                    <a asp-area="" asp-page="/Reports/Tiers">Journal des tiers</a>
+                    <a asp-area="" asp-page="/Reports/Statement">Releve</a>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <a asp-area="" asp-page="/Users/Index">Utilisateurs</a>
+                        <a asp-area="" asp-page="/Treasury/Journals/Index">Journaux</a>
+                        <a asp-area="" asp-page="/Treasury/Signatories/Index">Signataires</a>
+                        <a asp-area="" asp-page="/Audit/Index">Audit</a>
+                    }
+                </nav>
+                <div class="app-user">
+                    <span class="small text-muted">
+                        @User.Identity?.Name
+                        @{
+                            var ex = User.FindFirst("Exercise")?.Value;
+                            var cf = User.FindFirst("CostCenter")?.Value;
+                        }
+                        @if (!string.IsNullOrEmpty(ex)) { <span>&middot; Exercice @ex</span> }
+                        @if (!string.IsNullOrEmpty(cf)) { <span>&middot; @cf</span> }
+                    </span>
+                    <a class="ms-2" asp-area="" asp-page="/Auth/SelectExercise">Changer exercice</a>
+                    <a class="ms-2" asp-area="" asp-page="/Auth/Login" asp-page-handler="Logout">Deconnexion</a>
+                </div>
+            }
+            else
+            {
+                <nav class="app-nav">
+                    <a asp-area="" asp-page="/Auth/Login">Connexion</a>
+                </nav>
+            }
+        </div>
+    </header>
+
+    <div class="container page-shell">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-muted">
+        <div class="container">
+            &copy; 2026 - CNSS_TRESO - <a asp-area="" asp-page="/Privacy">Confidentialite</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

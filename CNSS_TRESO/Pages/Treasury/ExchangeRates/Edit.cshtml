@@ -1,0 +1,19 @@
+@page
+@model CNSS_TRESO.Pages.Treasury.ExchangeRates.EditModel
+@{
+    ViewData["Title"] = "Modifier le taux";
+}
+<section class="hero">
+    <h1>Modifier le taux</h1>
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="alert alert-danger">@Model.ErrorMessage</div> }
+    <div class="feature-card mt-3">
+        <form method="post" class="row g-3">
+            <input type="hidden" asp-for="Number" />
+            <div class="col-md-3"><label class="form-label" asp-for="Input.RateDate">Date</label><input class="form-control" asp-for="Input.RateDate" type="date" /></div>
+            <div class="col-md-3"><label class="form-label" asp-for="Input.CurrencyCode">Monnaie</label><select class="form-select" asp-for="Input.CurrencyCode">@foreach (var currency in Model.Currencies) { <option value="@currency.Code">@currency.Code - @currency.Label</option> }</select></div>
+            <div class="col-md-3"><label class="form-label" asp-for="Input.Amount">Montant</label><input class="form-control" asp-for="Input.Amount" type="number" step="0.0001" /></div>
+            <div class="col-md-3"><label class="form-label" asp-for="Input.Percent">Pourcent</label><input class="form-control" asp-for="Input.Percent" type="number" step="0.01" /></div>
+            <div class="col-12"><button class="btn btn-success" type="submit">Enregistrer</button><a class="btn btn-outline-secondary ms-2" asp-page="./Index">Annuler</a></div>
+        </form>
+    </div>
+</section>

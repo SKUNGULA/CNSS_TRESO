@@ -1,0 +1,41 @@
+@model CNSS_TRESO.Pages.Shared.ReportLetterheadModel
+<style>
+    .report-letterhead {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2E5C8A;
+        margin-bottom: 14px;
+    }
+    .report-letterhead img, .report-letterhead .report-logo { height: 56px; width: auto; max-width: 160px; object-fit: contain; }
+    .print-only { display: none; }
+    .report-letterhead .titles { line-height: 1.1; }
+    .report-letterhead .org { font-weight: 700; font-size: 14px; color: #0a3d8f; letter-spacing: .3px; }
+    .report-letterhead .cf { font-size: 12px; color: #555; margin-top: 2px; }
+
+    @@media print {
+        .app-header, .footer, form, .app-nav, .app-user, .no-print { display: none !important; }
+        .page-shell, .feature-card { box-shadow: none !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
+        body { background: #fff !important; }
+        .print-area { font-size: 11px; }
+        .print-area table { width: 100% !important; }
+        .print-area thead { display: table-header-group; }
+        .print-area tfoot { display: table-footer-group; }
+        .print-area tr { page-break-inside: avoid; }
+        a[href]:after { content: ""; }
+        .print-only { display: block !important; }
+    }
+    @@page { size: A4 landscape; margin: 10mm; }
+</style>
+
+@{
+    ViewData["LogoCssClass"] = "report-logo";
+}
+<header class="report-letterhead">
+    <partial name="_BrandLogo" />
+    <div class="titles">
+        <div class="org">CAISSE NATIONALE DE SECURITE SOCIALE</div>
+        <div class="cf">Centre de frais : <strong>@(Model.CostCenterLabel ?? Model.CostCenter ?? "(tous)")</strong></div>
+    </div>
+</header>

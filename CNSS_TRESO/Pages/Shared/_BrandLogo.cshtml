@@ -1,0 +1,16 @@
+@{
+    var letterheadWebRoot = (Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment)?.WebRootPath;
+    string brandLogoSrc = Url.Content("~/img/logo.svg");
+    if (!string.IsNullOrEmpty(letterheadWebRoot))
+    {
+        foreach (var name in new[] { "logo.png", "logo.jpg", "logo.jpeg" })
+        {
+            if (System.IO.File.Exists(System.IO.Path.Combine(letterheadWebRoot, "img", name)))
+            {
+                brandLogoSrc = Url.Content("~/img/" + name);
+                break;
+            }
+        }
+    }
+}
+<img src="@brandLogoSrc" alt="Logo CNSS" class="@(ViewData["LogoCssClass"] ?? "")" />
